@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ykoseki <ykoseki@student.42.fr>            +#+  +:+       +#+        */
+/*   By: koseki.yusuke <koseki.yusuke@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/01 03:27:11 by ykoseki           #+#    #+#             */
-/*   Updated: 2023/11/20 19:50:05 by ykoseki          ###   ########.fr       */
+/*   Updated: 2023/11/26 11:37:46 by koseki.yusu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,28 @@
 # include <stdio.h>
 #include <fcntl.h>
 
-//png size 30*24
+//png size 30*30
 # define SQUARE_SIZE 32
 # define WINDOW_NAME	"so_long"
+
+//texture path
 # define EMPTY_PATH "./textures/grass.xpm"
 # define EMPTY2_PATH "./textures/shinji.xpm"
-# define WALL_PATH "./textures/wall.xpm"
+# define WALL_PATH "./textures/wall2.xpm"
 # define WALL2_PATH "./textures/seele.xpm"
-# define PLAYER1_PATH "./textures/player.xpm"
+# define PLAYER1_PATH "./textures/gendou.xpm"
 # define PLAYER2_PATH "./textures/player2.xpm"
 # define ENEMY_PATH "./textures/enemy.xpm"
 # define COLLECT_PATH "./textures/collect.xpm"
 # define EXIT_PATH "./textures/exit.xpm"
 # define BEAM_PATH "./textures/beam.xpm"
+
+//valid char
+#define WALL '1'
+#define EMPTY '0'
+#define PLAYER 'P'
+#define EXIT 'E'
+#define COLLECTABLE 'C'
 
 typedef enum e_event
 {
@@ -55,12 +64,11 @@ typedef enum e_keycode
 	RIGHT = 100
 }				t_keycode;
 
-// typedef
-
 typedef struct s_maps {
 	char 	**grid;
-	size_t 	row;
-	size_t 	column;
+	char **dfs_map;
+	int 	row;
+	int 	column;
 }				t_maps;
 
 typedef struct s_textures
@@ -72,11 +80,11 @@ typedef struct s_textures
 	void *collect;
 }				t_textures;
 
-typedef struct s_player_pos
+typedef struct s_pos
 {
-	size_t x_pos;
-	size_t y_pos;
-}				t_player_pos;
+	int x_pos;
+	int y_pos;
+}				t_pos;
 
 typedef struct s_char_counters
 {
@@ -89,32 +97,39 @@ typedef struct s_manager
 {
     void *mlx;
 	void *win;
-	t_player_pos 	player_pos;
+	t_pos 	player_pos;
+	t_pos 	exit_pos;
 	t_textures  	textures;
 	t_maps			maps;
-	int collect_flag;
-	size_t move_count;
 	t_char_counters char_counters;
+	int collect_flag;
+	int move_count;
 }               t_manager;
 
 
 int ft_close(t_manager *mgr);
-size_t count_rows(char *map_filepath);
+size_t count_rows(t_manager *mgr, char *map_filepath);
 char **read_ber_file(t_manager *mgr, char *map_filepath);
 void ft_create_map(t_manager *mgr, char *map_filepath);
-void ft_read_xpmfile(t_manager *mgr, size_t idx);
+void ft_read_xpmfile(t_manager *mgr, int idx);
 void ft_put_image(void *img, t_maps *maps);
 void ft_read_management(t_manager *mgr);
-int ft_init_put_map(t_manager *mgr, size_t y, size_t x);
+int ft_init_put_map(t_manager *mgr, int y, int x);
 int ft_render_map(t_manager *mgr);
 int	ft_event_handler(int keycode, t_manager *mgr);
-void ft_update_put_map(t_manager *mgr, size_t y, size_t x);
-void ft_update_render_map (t_manager *mgr);
-int ft_refresh_map(t_manager *mgr);
+void ft_update_put_map(t_manager *mgr, int y, int x);
+int ft_update_render_map (t_manager *mgr);
 int ft_move_player(int keycode, t_manager *mgr);
-void	ft_update_position(t_manager *mgr, size_t x, size_t y);
+void	ft_update_position(t_manager *mgr, int x, int y);
 int is_square_wall(t_manager *mgr);
-
-
+int is_possible_goal(t_manager *mgr, int x, int y);
+int ft_error_message_handler(char *message);
+char **ft_error_message_handler_null(char *message);
+char **read_ber_file_for_dfs(t_manager *mgr, char *map_filepath);
+int is_possible_collectible_manager(t_manager *mgr, char *map_filepath);
+int ft_clean_dfs_map(t_manager *mgr, char *map_filepath);
+int is_possible_collectible(t_manager *mgr, int x, int y, int collect_pos_x, int collect_pos_y);
+void ft_init(t_manager *mgr, char* map_filepath);
+int ft_init_render(t_manager *mgr);
 
 #endif

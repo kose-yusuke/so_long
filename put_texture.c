@@ -1,13 +1,20 @@
-//ヘッダー入れる
-
-//wondowにtextureを描く関数を入れる
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   put_texture.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: koseki.yusuke <koseki.yusuke@student.42    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/23 23:27:17 by koseki.yusu       #+#    #+#             */
+/*   Updated: 2023/11/26 00:16:21 by koseki.yusu      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "so_long.h"
 
 void ft_read_management(t_manager *mgr)
 {
-    size_t idx;
+    int idx;
 
     idx = 1;
     while (idx < 6)
@@ -17,7 +24,7 @@ void ft_read_management(t_manager *mgr)
     }
 }
 
-void ft_read_xpmfile(t_manager *mgr, size_t idx)
+void ft_read_xpmfile(t_manager *mgr, int idx)
 {
 	int img_width;
 	int img_height;
@@ -27,7 +34,7 @@ void ft_read_xpmfile(t_manager *mgr, size_t idx)
         mgr->textures.wall = mlx_xpm_file_to_image(mgr->mlx, WALL_PATH, &img_width, &img_height);
     }
     else if (idx == 2)
-        mgr->textures.empty = mlx_xpm_file_to_image(mgr->mlx, EMPTY_PATH, &img_width, &img_height);
+        mgr->textures.empty = mlx_xpm_file_to_image(mgr->mlx, EMPTY2_PATH, &img_width, &img_height);
     else if (idx == 3)
 	    mgr->textures.player = mlx_xpm_file_to_image(mgr->mlx, PLAYER1_PATH, &img_width, &img_height);
     else if (idx == 4)
@@ -36,38 +43,27 @@ void ft_read_xpmfile(t_manager *mgr, size_t idx)
         mgr->textures.collect = mlx_xpm_file_to_image(mgr->mlx, COLLECT_PATH, &img_width, &img_height);
 }
 
-int ft_init_put_map(t_manager *mgr, size_t y, size_t x)
+int ft_init_put_map(t_manager *mgr, int y, int x)
 {
     if (mgr->maps.grid[y][x] == '1')
         mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.wall, \
         x*SQUARE_SIZE, y*SQUARE_SIZE);
     else if (mgr->maps.grid[y][x] == 'P')
     {
-        mgr->player_pos.x_pos = x;
-        mgr->player_pos.y_pos = y;
-        mgr->char_counters.player_counter++;
-		if (mgr->char_counters.player_counter >= 2)
-            return (0);
         mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.player, \
         x*SQUARE_SIZE, y*SQUARE_SIZE);
+        mgr->maps.grid[y][x] = '0';
     }
     else if (mgr->maps.grid[y][x] == '0')
         mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.empty, \
         x*SQUARE_SIZE, y*SQUARE_SIZE);
     else if (mgr->maps.grid[y][x] == 'E')
 	{
-        mgr->char_counters.exit_counter++;
-		if (mgr->char_counters.exit_counter >= 2)
-        {
-            return (0);
-        }
 		mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.enemy, \
         x*SQUARE_SIZE, y*SQUARE_SIZE);
-		//if Eが二回め
 	}
     else if (mgr->maps.grid[y][x] == 'C')
     {
-        mgr->char_counters.collect_counter++;
         mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.collect, \
         x*SQUARE_SIZE, y*SQUARE_SIZE);
     }
@@ -76,8 +72,8 @@ int ft_init_put_map(t_manager *mgr, size_t y, size_t x)
 
 int ft_render_map(t_manager *mgr)
 {
-    size_t	row_idx;
-	size_t	column_idx;
+    int	row_idx;
+	int	column_idx;
 
 	row_idx = 0;
     while (row_idx < mgr->maps.row)
@@ -94,20 +90,15 @@ int ft_render_map(t_manager *mgr)
     return (1);
 }
 
-void ft_update_put_map(t_manager *mgr, size_t y, size_t x)
+//多分全部を毎回renderする必要はない. playerとcollectだけ
+void ft_update_put_map(t_manager *mgr, int y, int x)
 {
     // size_t collect_flag;
 
     //playerの位置
     if (mgr->player_pos.x_pos == x && mgr->player_pos.y_pos == y)
     {
-        if (mgr->maps.grid[y][x] == 'C')
-        {
-            mgr->collect_flag = 1;
-            //1回で8回くらい実行されてる
-            mgr->char_counters.collect_counter--;
-        }
-        else if (mgr->maps.grid[y][x] == 'E' && mgr->char_counters.collect_counter == 0)
+        if (mgr->maps.grid[y][x] == 'E' && mgr->char_counters.collect_counter == 0)
         {
             ft_close(mgr);
         }
@@ -119,8 +110,7 @@ void ft_update_put_map(t_manager *mgr, size_t y, size_t x)
         if (mgr->maps.grid[y][x] == '1')
             mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.wall, \
             x*SQUARE_SIZE, y*SQUARE_SIZE);
-        else if (mgr->maps.grid[y][x] == '0' || mgr->maps.grid[y][x] == 'P' || \
-            (mgr->maps.grid[y][x] == 'C' && mgr->collect_flag == 1))
+        else if (mgr->maps.grid[y][x] == '0')
             mlx_put_image_to_window(mgr->mlx, mgr->win, mgr->textures.empty, \
             x*SQUARE_SIZE, y*SQUARE_SIZE);
         else if (mgr->maps.grid[y][x] == 'E')
@@ -132,10 +122,10 @@ void ft_update_put_map(t_manager *mgr, size_t y, size_t x)
     }
 }
 
-void ft_update_render_map(t_manager *mgr)
+int ft_update_render_map(t_manager *mgr)
 {
-    size_t	row_idx;
-	size_t	column_idx;
+    int	row_idx;
+	int	column_idx;
 
 	row_idx = 0;
     while (row_idx < mgr->maps.row)
@@ -148,4 +138,5 @@ void ft_update_render_map(t_manager *mgr)
         }
         row_idx++;
     }
+    return (0);
 }
