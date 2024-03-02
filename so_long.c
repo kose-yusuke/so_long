@@ -6,7 +6,7 @@
 /*   By: koseki.yusuke <koseki.yusuke@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/23 23:27:28 by koseki.yusu       #+#    #+#             */
-/*   Updated: 2023/11/26 17:28:06 by koseki.yusu      ###   ########.fr       */
+/*   Updated: 2023/11/26 18:01:47 by koseki.yusu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ int ft_init_render(t_manager *mgr)
 	return (0);
 }
 
+//クソデカファイルの対応
 int	main(int argc, char **argv)
 {
 	t_manager mgr;
