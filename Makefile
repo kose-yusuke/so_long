@@ -6,7 +6,7 @@ LIB = -L $(MLX_DIR) -l $(MLX) -L $(LIBFT_DIR) -l $(LIBFT) \
 	-L/usr/X11R6/lib -lX11 -lXext
 SRC_DIR = ./
 MANDATORY_FILES = so_long.c put_texture.c \
-initialize_map.c event.c check_map.c
+put_texture2.c initialize_map.c event.c check_map.c error_handler.c
 MANDATORY_OBJS = $(addprefix $(SRC_DIR)/, $(MANDATORY_FILES:.c=.o))
 BONUS_FILES = so_long_bonus.c
 BONUS_OBJS = $(addprefix $(SRC_DIR)/, $(BONUS_FILES:.c=.o))
